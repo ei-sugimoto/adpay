@@ -7,13 +7,34 @@ import (
 	"os"
 	"os/signal"
 	"time"
+
+	"github.com/ei-sugimoto/adpay/apps/backend/controller"
+	"github.com/ei-sugimoto/adpay/apps/backend/infra"
+	"github.com/ei-sugimoto/adpay/apps/backend/infra/persistence"
+	"github.com/ei-sugimoto/adpay/apps/backend/usecase"
+	"github.com/uptrace/bun/extra/bundebug"
 )
 
 func Serve() {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/hello", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Hello, World!"))
-	})
+
+	db := infra.NewDB()
+	db.AddQueryHook(bundebug.NewQueryHook(bundebug.WithVerbose(true)))
+	defer db.Close()
+
+	userPersistence := persistence.NewUserPersistence(db)
+
+	userUsecase := usecase.NewUserUsecase(userPersistence)
+
+	userController := controller.NewUserController(userUsecase)
+
+	Routes := map[string]func(http.ResponseWriter, *http.Request){
+		"/register": userController.Register,
+	}
+
+	for pattern, handler := range Routes {
+		mux.HandleFunc(pattern, handler)
+	}
 
 	server := &http.Server{
 		Addr:    ":8000",

@@ -8,7 +8,15 @@ type User struct {
 	Password vo.Password
 }
 
-func NewUser(name, password string) User {
+func NewUser(id int64, name, password string) User {
+	return User{
+		ID:       vo.NewID(id),
+		Name:     vo.NewName(name),
+		Password: vo.NewPassword(password),
+	}
+}
+
+func NewUserWithoutID(name, password string) User {
 	return User{
 		Name:     vo.NewName(name),
 		Password: vo.NewPassword(password),

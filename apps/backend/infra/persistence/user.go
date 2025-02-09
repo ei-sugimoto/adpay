@@ -25,7 +25,8 @@ func NewUserPersistence(db *bun.DB) repository.UserRepository {
 }
 
 func (p *UserPersistence) Save(ctx context.Context, user entity.User) error {
-	user.Password.Crypto()
+	cryptoPassword := user.Password.Crypto()
+	user.Password = cryptoPassword
 	convertUser := ConvertUser(user)
 	_, err := p.DB.NewInsert().Model(&convertUser).Exec(ctx)
 	if err != nil {
