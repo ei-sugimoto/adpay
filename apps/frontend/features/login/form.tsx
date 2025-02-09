@@ -1,6 +1,6 @@
 'use client';
 
-import { registerSchema } from '@/app/register/register.schema';
+import { loginSchema } from '@/app/login/login.schema';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -19,9 +19,9 @@ import { redirect } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-export default function RegisterForm() {
-  const form = useForm<z.infer<typeof registerSchema>>({
-    resolver: zodResolver(registerSchema),
+export default function LoginForm() {
+  const form = useForm<z.infer<typeof loginSchema>>({
+    resolver: zodResolver(loginSchema),
     defaultValues: {
       name: '',
       password: '',
@@ -30,40 +30,39 @@ export default function RegisterForm() {
 
   const { toast } = useToast();
 
-  async function onSubmit(values: z.infer<typeof registerSchema>) {
-    await fetch(`${nextAPIClient.origin}/api/register`, {
+  async function onSubmit(values: z.infer<typeof loginSchema>) {
+    const res = await fetch(`${nextAPIClient.origin}/api/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(values),
-    })
-      .catch((err) => {
-        console.error(err);
-        return null;
-      })
-      .then((res) => {
-        if (!res) {
-          return;
-        }
+    }).catch((err) => {
+      console.error(err);
+      return null;
+    });
 
-        switch (res.status) {
-          case 201:
-            redirect('/login');
-          case 400:
-            toast({ title: 'Invalid request', variant: 'destructive' });
-            break;
-          case 404:
-            toast({ title: 'Not found', variant: 'destructive' });
-            break;
-          case 409:
-            toast({ title: 'already exsists user', variant: 'destructive' });
-            break;
-          default:
-            toast({ title: 'internal server error', variant: 'destructive' });
-            break;
-        }
-      });
+    if (!res) {
+      toast({ title: 'An error occurred', variant: 'destructive' });
+      return;
+    }
+
+    switch (res.status) {
+      case 200:
+        redirect('/');
+      case 400:
+        toast({ title: 'Invalid request', variant: 'destructive' });
+        break;
+      case 404:
+        toast({ title: 'Not found', variant: 'destructive' });
+        break;
+      default:
+        toast({
+          title: 'internal server error',
+          variant: 'destructive',
+        });
+        break;
+    }
   }
 
   return (

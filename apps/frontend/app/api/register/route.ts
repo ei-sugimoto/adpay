@@ -21,8 +21,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     console.log(res.status);
 
     switch (res.status) {
-        case 200:
-            return NextResponse.json({ success: true });
+        case 201:
+            return NextResponse.json({ success: true }, { status: 201 });
         case 400:
             return NextResponse.json({ error: "Invalid request" }, { status: 400 });
         case 409:
