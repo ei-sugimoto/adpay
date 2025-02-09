@@ -30,6 +30,7 @@ func Serve() {
 
 	Routes := map[string]func(http.ResponseWriter, *http.Request){
 		"/register": userController.Register,
+		"/login":    userController.Login,
 	}
 
 	for pattern, handler := range Routes {

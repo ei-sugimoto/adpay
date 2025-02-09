@@ -8,4 +8,5 @@ import (
 
 type UserRepository interface {
 	Save(ctx context.Context, user entity.User) error
+	GetByName(ctx context.Context, user entity.User) (entity.User, error)
 }

@@ -5,6 +5,7 @@ import (
 
 	"github.com/ei-sugimoto/adpay/apps/backend/domain/entity"
 	"github.com/ei-sugimoto/adpay/apps/backend/domain/repository"
+	"github.com/ei-sugimoto/adpay/apps/backend/domain/vo"
 	"github.com/uptrace/bun"
 )
 
@@ -33,6 +34,20 @@ func (p *UserPersistence) Save(ctx context.Context, user entity.User) error {
 		return err
 	}
 	return nil
+}
+
+func (p *UserPersistence) GetByName(ctx context.Context, user entity.User) (entity.User, error) {
+
+	convertUser := ConvertUser(user)
+	err := p.DB.NewSelect().Model(&convertUser).Where("name = ?", user.Name).Scan(ctx)
+	if err != nil {
+		return entity.User{}, err
+	}
+	return entity.User{
+		ID:       vo.NewID(convertUser.ID),
+		Name:     vo.NewName(convertUser.Name),
+		Password: vo.NewPassword(convertUser.Password),
+	}, nil
 }
 
 func ConvertUser(user entity.User) User {

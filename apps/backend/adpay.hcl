@@ -20,6 +20,10 @@ table "users" {
     columns = [column.id]
   }
 
+  index "idx_name" {
+    columns = [column.name]
+    unique = true
+  }
 }
 
 table "projects" {
