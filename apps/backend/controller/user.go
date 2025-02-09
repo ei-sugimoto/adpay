@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/ei-sugimoto/adpay/apps/backend/domain/entity"
+	"github.com/ei-sugimoto/adpay/apps/backend/infra/persistence"
 	"github.com/ei-sugimoto/adpay/apps/backend/usecase"
 	"github.com/ei-sugimoto/adpay/apps/backend/utils"
 )
@@ -43,6 +44,11 @@ func (c UserController) Register(w http.ResponseWriter, r *http.Request) {
 	newUser := entity.NewUserWithoutID(req.Name, req.Password)
 	err := c.UserUsecase.Save(r.Context(), newUser)
 	if err != nil {
+		if err == persistence.ErrExistUser {
+			w.WriteHeader(http.StatusConflict)
+			json.NewEncoder(w).Encode(map[string]string{"error": "User already exists"})
+			return
+		}
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(map[string]string{"error": fmt.Sprintln(err)})
 		return

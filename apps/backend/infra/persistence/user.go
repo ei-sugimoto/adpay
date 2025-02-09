@@ -2,10 +2,13 @@ package persistence
 
 import (
 	"context"
+	"errors"
 
 	"github.com/ei-sugimoto/adpay/apps/backend/domain/entity"
 	"github.com/ei-sugimoto/adpay/apps/backend/domain/repository"
 	"github.com/ei-sugimoto/adpay/apps/backend/domain/vo"
+	"github.com/lib/pq"
+	_ "github.com/lib/pq"
 	"github.com/uptrace/bun"
 )
 
@@ -19,6 +22,8 @@ type User struct {
 	Password string `bun:"password"`
 }
 
+var ErrExistUser = errors.New("exist user")
+
 func NewUserPersistence(db *bun.DB) repository.UserRepository {
 	return &UserPersistence{
 		DB: db,
@@ -31,6 +36,12 @@ func (p *UserPersistence) Save(ctx context.Context, user entity.User) error {
 	convertUser := ConvertUser(user)
 	_, err := p.DB.NewInsert().Model(&convertUser).Exec(ctx)
 	if err != nil {
+		if pqErr, ok := err.(*pq.Error); ok {
+			// ユニーク制約違反エラーをチェック
+			if pqErr.Code == "23505" {
+				return ErrExistUser
+			}
+		}
 		return err
 	}
 	return nil
