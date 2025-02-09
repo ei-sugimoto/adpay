@@ -11,6 +11,7 @@ import (
 	"github.com/ei-sugimoto/adpay/apps/backend/controller"
 	"github.com/ei-sugimoto/adpay/apps/backend/infra"
 	"github.com/ei-sugimoto/adpay/apps/backend/infra/persistence"
+	"github.com/ei-sugimoto/adpay/apps/backend/middleware"
 	"github.com/ei-sugimoto/adpay/apps/backend/usecase"
 	"github.com/uptrace/bun/extra/bundebug"
 )
@@ -37,9 +38,10 @@ func Serve() {
 		mux.HandleFunc(pattern, handler)
 	}
 
+	muxWithMiddleware := middleware.LoggingMiddleware(mux)
 	server := &http.Server{
 		Addr:    ":8000",
-		Handler: mux,
+		Handler: muxWithMiddleware,
 	}
 
 	go func() {
