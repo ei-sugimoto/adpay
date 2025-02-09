@@ -13,7 +13,7 @@ table "users" {
     type = varchar(10)
   }
   column "password" {
-    type = varchar(20)
+    type = varchar(255)
   }
 
   primary_key {
