@@ -15,6 +15,7 @@ services:
       - DB_NAME=adpay
       - DB_USER=user
       - DB_PASSWORD=password
+      - JWT_SECRET_KEY=secret
 
   db:
     image: postgres:13

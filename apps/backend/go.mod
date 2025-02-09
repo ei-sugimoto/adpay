@@ -3,6 +3,7 @@ module github.com/ei-sugimoto/adpay/apps/backend
 go 1.23.4
 
 require (
+	github.com/golang-jwt/jwt/v4 v4.5.1
 	github.com/lib/pq v1.10.9
 	github.com/pkg/errors v0.9.1
 	github.com/uptrace/bun v1.2.9
