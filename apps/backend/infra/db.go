@@ -4,11 +4,10 @@ import (
 	"database/sql"
 	"os"
 
+	_ "github.com/lib/pq"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/pgdialect"
 )
-
-type DB bun.DB
 
 var (
 	Host string
@@ -24,6 +23,7 @@ func init() {
 	Name = os.Getenv("DB_NAME")
 	User = os.Getenv("DB_USER")
 	Pass = os.Getenv("DB_PASSWORD")
+
 	if Host == "" || Port == "" || Name == "" || User == "" || Pass == "" {
 		panic("DB connection information is not set")
 	}

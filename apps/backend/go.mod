@@ -3,6 +3,7 @@ module github.com/ei-sugimoto/adpay/apps/backend
 go 1.23.4
 
 require (
+	github.com/lib/pq v1.10.9
 	github.com/uptrace/bun v1.2.9
 	github.com/uptrace/bun/dialect/pgdialect v1.2.9
 	golang.org/x/crypto v0.33.0

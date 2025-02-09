@@ -1,7 +1,11 @@
 package repository
 
-import "github.com/ei-sugimoto/adpay/apps/backend/domain/entity"
+import (
+	"context"
+
+	"github.com/ei-sugimoto/adpay/apps/backend/domain/entity"
+)
 
 type UserRepository interface {
-	Save(user entity.User) error
+	Save(ctx context.Context, user entity.User) error
 }

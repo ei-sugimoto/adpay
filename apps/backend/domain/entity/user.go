@@ -8,9 +8,8 @@ type User struct {
 	Password vo.Password
 }
 
-func NewUser(id int64, name, password string) User {
+func NewUser(name, password string) User {
 	return User{
-		ID:       vo.NewID(id),
 		Name:     vo.NewName(name),
 		Password: vo.NewPassword(password),
 	}
