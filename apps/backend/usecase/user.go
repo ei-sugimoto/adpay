@@ -5,6 +5,7 @@ import (
 
 	"github.com/ei-sugimoto/adpay/apps/backend/domain/entity"
 	"github.com/ei-sugimoto/adpay/apps/backend/domain/repository"
+	"github.com/ei-sugimoto/adpay/apps/backend/infra/persistence"
 	"github.com/ei-sugimoto/adpay/apps/backend/utils"
 	"github.com/pkg/errors"
 )
@@ -20,6 +21,9 @@ func NewUserUsecase(userRepository repository.UserRepository) *UserUsecase {
 }
 
 func (u *UserUsecase) Save(ctx context.Context, user entity.User) error {
+	if exist, _ := u.UserRepository.ExistByName(ctx, user); exist {
+		return persistence.ErrExistUser
+	}
 	return u.UserRepository.Save(ctx, user)
 }
 

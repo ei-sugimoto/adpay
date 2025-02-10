@@ -47,6 +47,24 @@ func (p *UserPersistence) Save(ctx context.Context, user entity.User) error {
 	return nil
 }
 
+func (p *UserPersistence) ExistByName(ctx context.Context, user entity.User) (bool, error) {
+	convertUser := ConvertUser(user)
+	err := p.DB.NewSelect().Model(&convertUser).Where("name = ?", user.Name).Scan(ctx)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
+func (p *UserPersistence) ExistByID(ctx context.Context, user entity.User) (bool, error) {
+	convertUser := ConvertUser(user)
+	err := p.DB.NewSelect().Model(&convertUser).Where("id = ?", user.ID).Scan(ctx)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
 func (p *UserPersistence) GetByName(ctx context.Context, user entity.User) (entity.User, error) {
 
 	convertUser := ConvertUser(user)
@@ -55,7 +73,7 @@ func (p *UserPersistence) GetByName(ctx context.Context, user entity.User) (enti
 		return entity.User{}, err
 	}
 	return entity.User{
-		ID:       vo.NewID(convertUser.ID),
+		ID:       vo.NewUserID(convertUser.ID),
 		Name:     vo.NewName(convertUser.Name),
 		Password: vo.NewPassword(convertUser.Password),
 	}, nil
