@@ -18,27 +18,32 @@ import (
 
 func Serve() {
 	mux := http.NewServeMux()
+	muxWithMiddleware := middleware.LoggingMiddleware(mux)
+	muxWithMiddleware = middleware.AuthenticatingMiddleware(muxWithMiddleware)
 
 	db := infra.NewDB()
 	db.AddQueryHook(bundebug.NewQueryHook(bundebug.WithVerbose(true)))
 	defer db.Close()
 
 	userPersistence := persistence.NewUserPersistence(db)
+	projectPersistence := persistence.NewProjectPersistence(db, userPersistence)
 
 	userUsecase := usecase.NewUserUsecase(userPersistence)
+	projectUsecase := usecase.NewProjectUsecase(projectPersistence)
 
 	userController := controller.NewUserController(userUsecase)
+	projectController := controller.NewProjectController(projectUsecase)
 
 	Routes := map[string]func(http.ResponseWriter, *http.Request){
 		"/register": userController.Register,
 		"/login":    userController.Login,
+		"/project":  projectController.Save,
 	}
 
 	for pattern, handler := range Routes {
 		mux.HandleFunc(pattern, handler)
 	}
 
-	muxWithMiddleware := middleware.LoggingMiddleware(mux)
 	server := &http.Server{
 		Addr:    ":8000",
 		Handler: muxWithMiddleware,

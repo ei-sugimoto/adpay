@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"strings"
 
@@ -10,20 +11,33 @@ import (
 
 func AuthenticatingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		if r.URL.Path == "/register" || r.URL.Path == "/login" {
+			next.ServeHTTP(w, r)
+			return
+		}
+
 		tokenString := r.Header.Get("Authorization")
 		if !strings.HasPrefix(tokenString, "Bearer ") {
-			http.Error(w, "authorization token must start with 'Bearer '", http.StatusUnauthorized)
+			w.Header().Set("Content-Type", "application/json; charset=utf-8")
+			w.WriteHeader(http.StatusUnauthorized)
+			json.NewEncoder(w).Encode(map[string]string{"error": "require Bearer prefix"})
+
 			return
 		}
 		tokenString = strings.TrimPrefix(tokenString, "Bearer ")
 		if tokenString == "" {
-			http.Error(w, "authorization token is required", http.StatusUnauthorized)
+			w.Header().Set("Content-Type", "application/json; charset=utf-8")
+			w.WriteHeader(http.StatusUnauthorized)
+			json.NewEncoder(w).Encode(map[string]string{"error": "authorization token is required"})
 			return
 		}
 
 		userID, err := utils.GetUserIDFromToken(tokenString)
 		if err != nil {
-			http.Error(w, "invalid token", http.StatusUnauthorized)
+			w.Header().Set("Content-Type", "application/json; charset=utf-8")
+			w.WriteHeader(http.StatusUnauthorized)
+			json.NewEncoder(w).Encode(map[string]string{"error": "authorization token is invalid"})
 			return
 		}
 

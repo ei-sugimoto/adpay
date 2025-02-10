@@ -9,7 +9,8 @@ import (
 )
 
 type ProjectPersistence struct {
-	DB *bun.DB
+	UserPersistence repository.UserRepository
+	DB              *bun.DB
 }
 
 type Project struct {
@@ -18,13 +19,27 @@ type Project struct {
 	AuthorID int64  `bun:"author_id"`
 }
 
-func NewProjectPersistence(db *bun.DB) repository.ProjectRepository {
-	return &ProjectPersistence{DB: db}
+func NewProjectPersistence(db *bun.DB, userPersistence repository.UserRepository) repository.ProjectRepository {
+	return &ProjectPersistence{UserPersistence: userPersistence, DB: db}
 }
 
 func (p *ProjectPersistence) Save(ctx context.Context, project entity.Project) error {
-	_, err := p.DB.NewInsert().Model(&project).Exec(ctx)
-	return err
+	var err error
+	isExsist, err := p.UserPersistence.ExistByID(ctx, project.AuthorID)
+	if err != nil {
+		return err
+	}
+
+	if !isExsist {
+		return ErrNoExistUser
+	}
+
+	convertProject := ConvertProject(project)
+	_, err = p.DB.NewInsert().Model(&convertProject).Exec(ctx)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func ConvertProject(project entity.Project) Project {

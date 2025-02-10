@@ -23,6 +23,7 @@ type User struct {
 }
 
 var ErrExistUser = errors.New("exist user")
+var ErrNoExistUser = errors.New("no exist user")
 
 func NewUserPersistence(db *bun.DB) repository.UserRepository {
 	return &UserPersistence{
@@ -56,9 +57,9 @@ func (p *UserPersistence) ExistByName(ctx context.Context, user entity.User) (bo
 	return true, nil
 }
 
-func (p *UserPersistence) ExistByID(ctx context.Context, user entity.User) (bool, error) {
-	convertUser := ConvertUser(user)
-	err := p.DB.NewSelect().Model(&convertUser).Where("id = ?", user.ID).Scan(ctx)
+func (p *UserPersistence) ExistByID(ctx context.Context, usrID vo.UserID) (bool, error) {
+	user := entity.User{}
+	err := p.DB.NewSelect().Model(&user).Where("id = ?", usrID).Scan(ctx)
 	if err != nil {
 		return false, err
 	}
