@@ -37,3 +37,41 @@ func NewToken(userID int64) (string, error) {
 	return tokenString, nil
 
 }
+
+func GetUserIDFromToken(tokenString string) (int64, error) {
+	claims, err := parseToken(tokenString)
+	if err != nil {
+		return 0, err
+	}
+
+	userID, err := strconv.ParseInt(claims.Subject, 10, 64)
+	if err != nil {
+		return 0, err
+	}
+
+	return userID, nil
+}
+
+func parseToken(tokenString string) (*Claims, error) {
+	secretKey := os.Getenv("JWT_SECRET_KEY")
+	if secretKey == "" {
+		return nil, ErrNoSetSecretKey
+	}
+
+	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, ErrFailedSignToken
+		}
+		return []byte(secretKey), nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if claims, ok := token.Claims.(*Claims); ok && token.Valid {
+		return claims, nil
+	}
+
+	return nil, errors.New("invalid token")
+}
