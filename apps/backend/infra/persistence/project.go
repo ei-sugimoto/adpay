@@ -16,7 +16,7 @@ type ProjectPersistence struct {
 type Project struct {
 	ID       int64  `bun:"id,pk,autoincrement"`
 	Name     string `bun:"name"`
-	AuthorID int64  `bun:"author_id"`
+	AuthorID int64  `bun:"author_id,fk:users.id"`
 }
 
 func NewProjectPersistence(db *bun.DB, userPersistence repository.UserRepository) repository.ProjectRepository {
@@ -34,7 +34,7 @@ func (p *ProjectPersistence) Save(ctx context.Context, project entity.Project) e
 		return ErrNoExistUser
 	}
 
-	convertProject := ConvertProject(project)
+	convertProject := ConvertProjectWithOutID(project)
 	_, err = p.DB.NewInsert().Model(&convertProject).Exec(ctx)
 	if err != nil {
 		return err
@@ -45,6 +45,13 @@ func (p *ProjectPersistence) Save(ctx context.Context, project entity.Project) e
 func ConvertProject(project entity.Project) Project {
 	return Project{
 		ID:       project.AuthorID.Int64(),
+		Name:     project.Name.String(),
+		AuthorID: project.AuthorID.Int64(),
+	}
+}
+
+func ConvertProjectWithOutID(project entity.Project) Project {
+	return Project{
 		Name:     project.Name.String(),
 		AuthorID: project.AuthorID.Int64(),
 	}

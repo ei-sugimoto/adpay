@@ -25,10 +25,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     if (!res) {
         return NextResponse.json({ error: "An error occurred" }, { status: 500 });
     }
-
     switch (res.status) {
         case 201:
-            return NextResponse.json({ status: 201 });
+            return NextResponse.json({ success: true }, { status: 201 });
         case 400:
             return NextResponse.json({ error: "Invalid request" }, { status: 400 });
         case 404:
