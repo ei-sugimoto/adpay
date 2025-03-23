@@ -53,6 +53,9 @@ export default function LoginForm() {
       case 400:
         toast({ title: 'Invalid request', variant: 'destructive' });
         break;
+      case 401:
+        toast({ title: 'Invalid credentials', variant: 'destructive' });
+        break;
       case 404:
         toast({ title: 'Not found', variant: 'destructive' });
         break;

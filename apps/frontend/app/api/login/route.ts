@@ -19,6 +19,19 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         return NextResponse.json({ error: "An error occurred" }, { status: 500 });
     }
 
+    switch (res.status) { 
+        case 400:
+            return NextResponse.json({ error: "bat request" }, { status: 400 });
+        case 401:
+            return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
+        case 404:
+            return NextResponse.json({ error: "Not found" }, { status: 404 });
+        case 500:
+            return NextResponse.json({ error: "An error occurred" }, { status: 500 });
+        default:
+            break;
+    }
+
     const resBody = await res.json();
     const { token } = resBody;
     if (!token) {
